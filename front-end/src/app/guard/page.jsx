@@ -1,8 +1,6 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
-import axios from "axios";
 import {
   useStyles,
   updateAdvanceHistoryPopUp,
