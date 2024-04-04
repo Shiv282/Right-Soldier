@@ -13,7 +13,7 @@ app.get('/getGuard/:id',async (req,res)=>{
     res.json({guard: guard});
 })
 
-app.get('/getAdvance/:id', async function(req,res){
+app.get('/getAdvance/:id', async function(req,res){ // For now the functionality is to get each advance, not sure why. Change it to getting based on guardId
     const AdvanceHistory = models.AdvanceHistory;
     const id = req.params.id;
     const advanceData = await AdvanceHistory.find({_id:id}); // Pending item : Filtering the Advance History of just one specific month
