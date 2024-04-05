@@ -15,7 +15,7 @@ export default function ApartmentPage() {
       <Button href="/supervisor/startPatrol" variant="contained" color="primary">
         Start patrol
       </Button>
-      <Button variant="contained" color="primary">
+      <Button href="/supervisor/viewPatrol" variant="contained" color="primary">
         View Patrol data
       </Button>
         </div>
