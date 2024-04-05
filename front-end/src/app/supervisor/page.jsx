@@ -9,10 +9,10 @@ export default function ApartmentPage() {
         <Button href="/supervisor/markAttendance" variant="contained" color="primary">
         Mark Attendance 
       </Button>
-      <Button variant="contained" color="primary">
+      <Button href="/supervisor/viewAttendance" variant="contained" color="primary">
         View Attendance 
       </Button>
-      <Button variant="contained" color="primary">
+      <Button href="/supervisor/startPatrol" variant="contained" color="primary">
         Start patrol
       </Button>
       <Button variant="contained" color="primary">
