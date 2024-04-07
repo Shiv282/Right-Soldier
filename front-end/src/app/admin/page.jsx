@@ -14,12 +14,32 @@ const useStyles = makeStyles((theme) => ({
 export default function AdminHomePage() {
 
     const [dialogData, setDialogData] = useState([]);
+    const [apartments, setApartments] = useState([]);
+    const [guards, setGuards] = useState([]);
     const [open, setOpen] = useState(false);
     const [error, setError] = useState(null);
+    const [addExistingGuardDialog, setAddExistingGuardDialog] = useState(false)
     const [guardDialog, setGuardDialog] = useState(false);
     const classes = useStyles();
 
-    const addApartment = async (event) =>{
+    const addExistingGuard = async () => {
+        var apartmentId = document.getElementById('apartmentName').value;
+        var guardId = document.getElementById('guardName').value;
+        var guardName = document.getElementById('guardName').options[document.getElementById('guardName').selectedIndex].text;
+        addExistingGuard
+        const response = await axios({
+            method: 'POST',
+            url: "http://localhost:3000/addExistingGuard",
+            data: {
+                guardId: guardId,
+                guardName: guardName, 
+                apartmentId: apartmentId
+            }
+          });
+        console.log(response);
+    }
+
+    const addApartment = async () =>{
         var location = document.getElementById('location').value;
         var apartmentName = document.getElementById('apartmentName').value;
         try{
@@ -46,7 +66,7 @@ export default function AdminHomePage() {
         handleClose();
       }
 
-      const addGuard = async (event) =>{
+      const addGuard = async () =>{
         var guardName = document.getElementById('guardName').value;
         try{
             const response = await axios({
@@ -90,6 +110,27 @@ export default function AdminHomePage() {
   const closeGuard = () => {
     setGuardDialog(false);
   };
+
+  const addExistingGuardDialogOpen =async ()=>{
+
+    const response = await axios({
+        method: 'GET',
+        url: "http://localhost:3000/apartments",
+      });
+      console.log(response.data.data);
+      setApartments(response.data.data);
+      const guards = await axios({
+        method: 'GET',
+        url: "http://localhost:3000/guards",
+      });
+      console.log(guards.data.data);
+      setGuards(guards.data.data);
+    setAddExistingGuardDialog(true);
+  }
+
+  const addExistingGuardDialogClose = ()=>{
+    setAddExistingGuardDialog(false);
+  }
   return (
     <>
       <div>
@@ -132,6 +173,7 @@ export default function AdminHomePage() {
             style={{ marginTop: 10 + "px" }}
             variant="contained"
             data-key="Add Guard"
+            onClick={addExistingGuardDialogOpen}
           >
             Add existing guard
           </Button>
@@ -166,6 +208,35 @@ export default function AdminHomePage() {
             View patrol info
           </Button>
         </div>
+
+        <Dialog open={addExistingGuardDialog} onClose={addExistingGuardDialogClose} scroll="paper">
+          <DialogTitle>
+            Add existing guard
+          </DialogTitle>
+          <DialogContent dividers className={classes.dialogContent}>
+            <div>
+            <label className="mr-5" htmlFor="apartmentName">Choose apartment</label>
+            <select name="apartmentName" id="apartmentName">
+                {apartments.map((apartment)=>(<option key={apartment._id} value={apartment._id}>{apartment.apartmentName}</option>))}
+            </select>
+            </div>
+            <div>
+            <label className="mr-5" htmlFor="location">Choose Guard</label>
+            <select name="guardName" id="guardName">
+            {guards.map((guard)=>(<option key={guard._id} value={guard._id}>{guard.name}</option>))}
+                
+            </select>
+            </div>
+            <Button
+              color="success"
+              onClick={addExistingGuard}
+              style={{ marginTop: 10 + "px" }}
+              variant="contained"
+            >
+              Submit
+            </Button>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={open} onClose={handleClose} scroll="paper">
           <DialogTitle>

@@ -35,6 +35,7 @@ export default function Page({ params }) {
     console.log(guardId);
     var amount = document.getElementById("amount").value;
     var reason = document.getElementById("reason").value;
+    var adminId = "65e0d05b34587bb61c4edc8c"
     const response = await axios({
       method: "POST",
       url: "http://localhost:3000/addAdvance",
