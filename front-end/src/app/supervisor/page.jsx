@@ -6,7 +6,7 @@ export default function ApartmentPage() {
     <>
         <Dashboard />
         <div className="grid gap-4 grid-cols-2 mt-10 mx-10">
-        <Button href="/supervisor/markAttendance" variant="contained" color="primary">
+        {/*<Button href="/supervisor/markAttendance" variant="contained" color="primary">
         Mark Attendance 
       </Button>
       <Button href="/supervisor/viewAttendance" variant="contained" color="primary">
@@ -17,7 +17,7 @@ export default function ApartmentPage() {
       </Button>
       <Button href="/supervisor/viewPatrol" variant="contained" color="primary">
         View Patrol data
-      </Button>
+  </Button>*/}
         </div>
     </>
   );

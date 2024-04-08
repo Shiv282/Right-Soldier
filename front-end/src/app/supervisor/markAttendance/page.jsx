@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 var apartmentId = "66082468f79020f63b04bf0c";
 
-async function submit() {
+async function markAttendance() {
   var boxes = document.querySelectorAll('input[type="checkbox"]');
   var result = [];
   for (var i = 0; i < boxes.length; i++) {
@@ -11,19 +11,45 @@ async function submit() {
       result.push(boxes[i].id);
     }
   }
-
+  var timestamp = new Date();
   const response = await axios({
     method: "POST",
-    url: "http://localhost:3000/markAttendance",
+    url: "http://localhost:8080/markAttendance",
     data: {
       id: result,
       apartmentId: apartmentId,
+      timestamp: timestamp,
     },
   });
+  console.log(response);
+  if(response.status==200){
+    return true;
+  }else{
+    return false;
+  }
 }
+
+
+
 
 export default function MarkAttendancePage() {
   const [pageData, setPageData] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  function handleClose(){
+    setOpen(true);
+  }
+
+  async function submit(){
+    var x = await markAttendance();
+    
+    if(x){
+      console.log(x);
+      setOpen(true);
+    }
+  }
+  
+ 
 
   useEffect(() => {
     async function fetchData() {
@@ -44,9 +70,13 @@ export default function MarkAttendancePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="my-5">
-        <button className="bg-white text-black py-2 px-4 rounded-md" onClick={submit}>
+        <button
+          className="bg-white text-black py-2 px-4 rounded-md"
+          onClick={submit}
+        >
           Submit
         </button>
+        
       </div>
       <div className="my-5">
         <span>Note : Attendance once given can't be removed</span>
@@ -72,3 +102,4 @@ export default function MarkAttendancePage() {
     </main>
   );
 }
+
