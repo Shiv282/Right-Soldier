@@ -26,7 +26,6 @@ export default function AdminHomePage() {
         var apartmentId = document.getElementById('apartmentName').value;
         var guardId = document.getElementById('guardName').value;
         var guardName = document.getElementById('guardName').options[document.getElementById('guardName').selectedIndex].text;
-        addExistingGuard
         const response = await axios({
             method: 'POST',
             url: "http://localhost:3000/addExistingGuard",
@@ -68,14 +67,26 @@ export default function AdminHomePage() {
 
       const addGuard = async () =>{
         var guardName = document.getElementById('guardName').value;
+        var apartmentId = document.getElementById('apartmentName').value;
+        var salary = document.getElementById('salary').value;
+        var phone = document.getElementById('phone').value;
+        var apartmentName = document.getElementById('apartmentName').options[document.getElementById('apartmentName').selectedIndex].text;
+        const currentDate = new Date();
+        const date = currentDate.getDate();
+        const month = currentDate.getMonth() + 1;  // JavaScript months are 0-based, so we add 1
+        const year = currentDate.getFullYear();
+        var timestamp = date+" - "+month+" - "+year;
         try{
             const response = await axios({
                 method: 'POST',
-                url: "http://localhost:3000/addGuard",
+                url: "http://localhost:8080/addGuard",
                 data: {
                     name: guardName,
-                    apartmentName: "apartmentName",
-                    apartmentId: "66082468f79020f63b04bf0c"
+                    apartmentName: apartmentName,
+                    apartmentId: apartmentId,
+                    salary: salary,
+                    dateOfJoining: timestamp,
+                    phone: phone
                 }
               });
               console.log(response);
@@ -104,6 +115,12 @@ export default function AdminHomePage() {
 
   const openGuard = async (event) => {
     setDialogData("Add Guard");
+    const response = await axios({
+      method: 'GET',
+      url: "http://localhost:3000/apartments",
+    });
+    console.log(response.data.data);
+    setApartments(response.data.data);
     setGuardDialog(true);
   };
 
@@ -270,6 +287,20 @@ export default function AdminHomePage() {
             <div>
             <label htmlFor="guardName">Enter Name</label>
             <input type="text" name="guardName" id="guardName" />
+            </div>
+            <div>
+            <label className="mr-5" htmlFor="apartmentName">Choose apartment</label>
+            <select name="apartmentName" id="apartmentName">
+                {apartments.map((apartment)=>(<option key={apartment._id} value={apartment._id}>{apartment.apartmentName}</option>))}
+            </select>
+            </div>
+            <div>
+            <label className="mr-5" htmlFor="salary">Enter salary</label>
+            <input type="number" name="salary" id="salary" />
+            </div>
+            <div>
+            <label className="mr-5" htmlFor="phone">Enter phone number</label>
+            <input type="number" name="phone" id="phone" />
             </div>
             <Button
               color="success"
