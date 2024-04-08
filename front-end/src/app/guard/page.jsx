@@ -11,6 +11,7 @@ import {
 
 export default function Home() {
   const [userData, setUserData] = useState([]);
+  const [guardId, setGuardId] = useState('');
   const classes = useStyles();
   const [openAdvanceHistory, setOpenAdvanceHistory] = useState(false);
   const [advanceData, setAdvanceData] = useState([]);
@@ -28,7 +29,7 @@ export default function Home() {
   };
 
   const handleOpenDutyHistory = async () => {
-    var dutyData = await updateDutyData();
+    var dutyData = await updateDutyData(guardId);
     setDutyData(dutyData);
     setOpenDutyHistory(true);
   };
@@ -37,7 +38,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchData(setUserData);
+    var id = localStorage.getItem('guardId');
+    setGuardId(id);
+    fetchData(setUserData,id);
   }, []);
 
   return (
@@ -67,11 +70,6 @@ export default function Home() {
             >
               <DialogTitle>Advance History</DialogTitle>
               <DialogContent dividers className={classes.dialogContent}>
-                {
-                  /* Add your scrollable content here */ console.log(
-                    advanceData
-                  )
-                }
                 {advanceData.map((advance) => (
                   <p key={advance[0]._id}>
                     Amount : {advance[0].amount} Date :{" "}
@@ -88,11 +86,6 @@ export default function Home() {
               <Dialog open={openDutyHistory} onClose={handleCloseDutyHistory} scroll="paper">
                 <DialogTitle>Duty History</DialogTitle>
                 <DialogContent dividers className={classes.dialogContent}>
-                  {
-                    /* Add your scrollable content here */ console.log(
-                      advanceData
-                    )
-                  }
                   {dutyData.map((advance) => (
                     <p key={advance._id}>Date : {getDate(advance.date)}</p>
                   ))}

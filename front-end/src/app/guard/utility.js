@@ -1,7 +1,6 @@
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
 
-var id = "660824960595f408c623ed89";
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -16,31 +15,21 @@ async function updateAdvanceHistoryPopUp(val) {
   var advanceHistory = val[0].advanceHistory;
   for (var i = 0; i < advanceHistory.length; i++) {
     var advanceId = advanceHistory[i];
-    console.log(advanceId);
     const response = await axios({
-      method: "POST",
-      url: "http://localhost:3000/getAdvance",
-      data: {
-        id: advanceId,
-      },
+      method: "GET",
+      url: "http://localhost:8080/getAdvance/"+advanceId,
     });
     advanceData.push(response.data.advanceData);
   }
-  console.log(advanceData);
   return advanceData;
 }
 exports.updateAdvanceHistoryPopUp = updateAdvanceHistoryPopUp;
 
-async function fetchData(setVal) {
-  console.log(id);
+async function fetchData(setVal, id) {
   const response = await axios({
-    method: "POST",
-    url: "http://localhost:3000/getGuard",
-    data: {
-      id: "660824960595f408c623ed89",
-    },
+    method: "GET",
+    url: "http://localhost:8080/getGuard/"+id
   });
-  console.log(response.data);
   setVal(response.data.guard);
 }
 exports.fetchData = fetchData;
@@ -55,13 +44,10 @@ function getDate(dateString) {
 }
 exports.getDate = getDate;
 
-async function updateDutyData() {
+async function updateDutyData(id) {
   const response = await axios({
-    method: "POST",
-    url: "http://localhost:3000/dutyHistory",
-    data: {
-      id,
-    },
+    method: "GET",
+    url: "http://localhost:8080/dutyHistory/"+id,
   });
   return response.data.AttendanceHistory;
 }
