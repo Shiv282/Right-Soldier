@@ -6,12 +6,21 @@ import {
   updateAdvanceHistoryPopUp,
   fetchData,
   getDate,
-  updateDutyData
+  updateDutyData,
+  daysInCurrentMonth,
 } from "./utility";
+import DayNightBarGraph from "../../components/DayNightBarGraph";
+import SalaryPieChart from "../../components/SalaryPieChart";
+import LineChart from "../../components/AdvanceHistoryLineChart";
+import StreakCalculator from "../../components/streakData";
+import Loader from "../../components/loader";
 
 export default function Home() {
   const [userData, setUserData] = useState([]);
-  const [guardId, setGuardId] = useState('');
+  const [guardId, setGuardId] = useState("");
+  const [advanceDates, setAdvanceDates] = useState([]);
+  const [advanceAmounts, setAdvanceAmounts] = useState([]);
+  const [dutyDates, setDutyDates] = useState([]);
   const classes = useStyles();
   const [openAdvanceHistory, setOpenAdvanceHistory] = useState(false);
   const [advanceData, setAdvanceData] = useState([]);
@@ -20,8 +29,6 @@ export default function Home() {
   const [dutyData, setDutyData] = useState([]);
 
   const handleOpenAdvanceHistory = async () => {
-    var advanceData = await updateAdvanceHistoryPopUp(userData);
-    setAdvanceData(advanceData);
     setOpenAdvanceHistory(true);
   };
   const handleCloseAdvanceHistory = () => {
@@ -29,8 +36,6 @@ export default function Home() {
   };
 
   const handleOpenDutyHistory = async () => {
-    var dutyData = await updateDutyData(guardId);
-    setDutyData(dutyData);
     setOpenDutyHistory(true);
   };
   const handleCloseDutyHistory = () => {
@@ -38,65 +43,297 @@ export default function Home() {
   };
 
   useEffect(() => {
-    var id = localStorage.getItem('guardId');
-    setGuardId(id);
-    fetchData(setUserData,id);
+    async function data() {
+      const advanceDates = [];
+      const advanceAmounts = [];
+      const dutyDates = [];
+      var id = localStorage.getItem("guardId");
+      setGuardId(id);
+      var userData = await fetchData(id);
+      setUserData(userData);
+      var dutyData = await updateDutyData(id);
+      setDutyData(dutyData);
+      console.log("dutyData", dutyData);
+      var advanceData = await updateAdvanceHistoryPopUp(userData);
+      setAdvanceData(advanceData);
+      console.log("advanceData", advanceData);
+
+      advanceData.map((advance) => {
+        advanceDates.push(getDate(advance[0].date));
+        advanceAmounts.push(advance[0].amount);
+      });
+
+      dutyData.map((duty) => {
+        dutyDates.push(getDate(duty.date));
+      });
+      console.log("advanceAmounts", advanceAmounts);
+      console.log("advanceDates", advanceDates);
+      setAdvanceAmounts(advanceAmounts);
+      setAdvanceDates(advanceDates);
+      setDutyDates(dutyDates);
+    }
+    data();
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="text-3xl">Guard Page </h1>
-      <div>
-        {userData[0] ? (
-          <div>
-            <h2> Name : {userData[0].name}</h2>
-            <h2> Salary : {userData[0].salary}</h2>
-            <h2> Apartment Name : {userData[0].apartmentName}</h2>
-            <h2> Advance : {userData[0].advance}</h2>
-            <h2> Days : {userData[0].days}</h2>
-            <h2> Nights : {userData[0].nights}</h2>
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpenAdvanceHistory}
-            >
-              Advance History
-            </Button>
-            <Dialog
-              open={openAdvanceHistory}
-              onClose={handleCloseAdvanceHistory}
-              scroll="paper"
-            >
-              <DialogTitle>Advance History</DialogTitle>
-              <DialogContent dividers className={classes.dialogContent}>
-                {advanceData.map((advance) => (
-                  <p key={advance[0]._id}>
-                    Amount : {advance[0].amount} Date :{" "}
-                    {getDate(advance[0].date)}
-                  </p>
-                ))}
-              </DialogContent>
-            </Dialog>
-
-            <div className="mt-3">
-              <Button variant="contained" color="primary" onClick={handleOpenDutyHistory}>
-                Duty History
-              </Button>
-              <Dialog open={openDutyHistory} onClose={handleCloseDutyHistory} scroll="paper">
-                <DialogTitle>Duty History</DialogTitle>
-                <DialogContent dividers className={classes.dialogContent}>
-                  {dutyData.map((advance) => (
-                    <p key={advance._id}>Date : {getDate(advance.date)}</p>
-                  ))}
-                </DialogContent>
-              </Dialog>
+    <main>
+      <div className="grid grid-rows-1 grid-cols-3 gap-1">
+        <div className="row-span-1 min-h-full p-5 rounded-xl">
+          <div className=" text-black bg-[#dfc6f7] min-h-full text-center rounded-md shadow-xl p-2 flex justify-center items-center">
+            {userData[0] ? (
+              <ProfileCard />
+            ) : (
+              <div>
+                <Loader />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 col-span-2">
+          <div className="row-span-1 p-5 rounded-xl">
+            <div className=" text-black  bg-[#dfc6f7] min-h-full text-center rounded-md shadow-xl py-8 px-6">
+              <h1 className="text-xl text-center font-extrabold underline underline-offset-8">
+                Day shifts vs Night shifts
+              </h1>
+              <div className="py-20" style={{ height: "90%", width: "90%" }}>
+                {userData[0] ? (
+                  <DayNightBarGraph
+                    className="min-h-full"
+                    yesCount={userData[0].days}
+                    noCount={userData[0].nights}
+                  />
+                ) : (
+                  <div>
+                    <Loader />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        ) : (
-          <div>Loading</div>
-        )}
+          <div className="row-span-1 p-5 rounded-xl">
+            <div className=" text-black bg-[#dfc6f7] text-center rounded-md shadow-xl p-6">
+              <h1 className="text-xl text-center font-extrabold underline underline-offset-8">
+                Salary breakup
+              </h1>
+              <div className="py-10" style={{ height: "100%", width: "100%" }}>
+                {userData[0] ? (
+                  <SalaryPieChart
+                    totalSalary={
+                      userData[0].salary -
+                      userData[0].salary *
+                        ((userData[0].days + userData[0].nights) /
+                          daysInCurrentMonth)
+                    }
+                    salaryEarned={
+                      userData[0].salary *
+                      ((userData[0].days + userData[0].nights) /
+                        daysInCurrentMonth)
+                    }
+                    advanceTaken={userData[0].advance}
+                  />
+                ) : (
+                  <div>
+                    <Loader />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-rows-2 grid-cols-3 gap-1">
+        <div className="grid grid-cols-2 col-span-3 mb-5">
+          <div className=" text-black bg-[#dfc6f7] text-center rounded-md mr-3 shadow-xl p-2">
+            <div className="py-20" style={{ height: "90%", width: "90%" }}>
+              <h1 className="text-xl mb-10 text-center font-extrabold underline underline-offset-8">
+                Advance pattern
+              </h1>
+              {advanceDates[0] ? (
+                <LineChart
+                  className="min-h-full"
+                  advanceAmounts={advanceAmounts}
+                  advanceDates={advanceDates}
+                />
+              ) : (
+                <div>
+                  <Loader />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="text-black bg-[#dfc6f7] text-center rounded-md shadow-xl p-2 flex justify-center items-center">
+            {advanceDates[0] ? (
+              <AdvanceHistory className="min-h-full" />
+            ) : (
+              <div>
+                <Loader />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 col-span-3">
+          <div className=" text-black bg-[#dfc6f7] text-center rounded-md mr-3 shadow-xl p-2">
+            <div className="py-20" style={{ height: "90%", width: "90%" }}>
+              <h1 className="text-xl mb-10 text-center font-extrabold underline underline-offset-8">
+                Duty Streak
+              </h1>
+              {dutyDates[0] ? (
+                <StreakCalculator
+                  className="min-h-full"
+                  attendanceDates={dutyDates}
+                />
+              ) : (
+                <div>
+                  <Loader />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="text-black bg-[#dfc6f7] text-center rounded-md shadow-xl p-2 flex justify-center items-center">
+            {dutyDates[0] ? (
+              <DutyHistory className="min-h-full" />
+            ) : (
+              <div>
+                <Loader />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );
+
+  function ProfileCard() {
+    return (
+      <div className="w-full">
+        <div className="text-center">
+          <h1 className="text-3xl text-center font-extrabold">Profile</h1>
+        </div>
+
+        <table className="bg-white w-full rounded-md my-3 table-auto border-collapse border-2 border-gray-300">
+          <thead>
+            <tr>
+              <th className="bg-gray-200 text-black p-1">Field</th>
+              <th className="bg-gray-200 text-black p-1">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">Name</td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].name}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">
+                Apartment Name
+              </td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].apartmentName}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">Salary</td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].salary}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">
+                Advance
+              </td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].advance}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">Days</td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].days}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">Nights</td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].nights}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">
+                Date of Joining
+              </td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].dateOfJoining}
+              </td>
+            </tr>
+            <tr>
+              <td className="border-b text-left border-gray-100 p-1">
+                Contact
+              </td>
+              <td className="border-b text-left border-gray-100 p-1">
+                {userData[0].phone}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  function AdvanceHistory() {
+    return (
+      <div className="w-full">
+        <h1 className="text-3xl text-center font-extrabold">Advance history</h1>
+        <table className="w-full rounded-md bg-white table-auto border-collapse border-2 border-gray-300">
+          <thead>
+            <tr>
+              <th className="bg-gray-200 text-black p-4">Amount</th>
+              <th className="bg-gray-200 text-black p-4">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {advanceData.map((advance) => (
+              <tr key={advance[0]._id}>
+                <td className="border-b border-gray-300 p-4">
+                  {advance[0].amount}
+                </td>
+                <td className="border-b border-gray-300 p-4">
+                  {getDate(advance[0].date)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  function DutyHistory() {
+    return (
+      <div className="w-full">
+        <h1 className="text-3xl text-center font-extrabold">Duty History</h1>
+        <table className="w-full rounded-md bg-white table-auto border-collapse border-2 border-gray-300">
+          <thead>
+            <tr>
+              <th className="bg-gray-200 text-black p-4">Date</th>
+              <th className="bg-gray-200 text-black p-4">Shift type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dutyData.map((advance) => (
+              <tr key={advance._id}>
+                <td className="border-b border-gray-300 p-4">
+                  {getDate(advance.date)}
+                </td>
+                <td className="border-b border-gray-300 p-4">
+                  {advance.shiftType}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 }

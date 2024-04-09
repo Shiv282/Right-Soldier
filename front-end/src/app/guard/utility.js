@@ -1,6 +1,17 @@
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
 
+function getDaysInCurrentMonth() {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth() + 1; // January is 0, so we add 1 to get the current month
+  return new Date(year, month, 0).getDate();
+}
+
+const daysInCurrentMonth = getDaysInCurrentMonth();
+
+exports.daysInCurrentMonth = daysInCurrentMonth;
+
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -25,12 +36,12 @@ async function updateAdvanceHistoryPopUp(val) {
 }
 exports.updateAdvanceHistoryPopUp = updateAdvanceHistoryPopUp;
 
-async function fetchData(setVal, id) {
+async function fetchData(id) {
   const response = await axios({
     method: "GET",
     url: "http://localhost:8080/getGuard/"+id
   });
-  setVal(response.data.guard);
+  return response.data.guard;
 }
 exports.fetchData = fetchData;
 

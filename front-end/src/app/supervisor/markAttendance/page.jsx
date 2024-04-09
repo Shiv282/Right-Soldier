@@ -1,6 +1,7 @@
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Loader from "@/components/loader";
 var apartmentId = "66082468f79020f63b04bf0c";
 
 async function markAttendance() {
@@ -22,34 +23,29 @@ async function markAttendance() {
     },
   });
   console.log(response);
-  if(response.status==200){
+  if (response.status == 200) {
     return true;
-  }else{
+  } else {
     return false;
   }
 }
-
-
-
 
 export default function MarkAttendancePage() {
   const [pageData, setPageData] = useState([]);
   const [open, setOpen] = useState(false);
 
-  function handleClose(){
+  function handleClose() {
     setOpen(true);
   }
 
-  async function submit(){
+  async function submit() {
     var x = await markAttendance();
-    
-    if(x){
+
+    if (x) {
       console.log(x);
       setOpen(true);
     }
   }
-  
- 
 
   useEffect(() => {
     async function fetchData() {
@@ -68,38 +64,52 @@ export default function MarkAttendancePage() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center p-24">
       <div className="my-5">
         <button
-          className="bg-white text-black py-2 px-4 rounded-md"
+          className="bg-blue-500 text-white py-2 px-4 rounded-md"
           onClick={submit}
         >
-          Submit
+          Mark Attendance
         </button>
-        
       </div>
       <div className="my-5">
-        <span>Note : Attendance once given can't be removed</span>
+        <table className="w-full bg-white rounded-md shadow-md">
+          <thead>
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Present
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageData[0] ? (
+              pageData.map((row) => (
+                <tr key={row._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {row.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input type="checkbox" name={row._id} id={row._id} />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="2" className="px-6 py-4 text-center">
+                  <Loader />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-      <div className="mx-20">
-        <p>Guard name - Present</p>
-
-        {pageData[0] ? (
-          <div>
-            {pageData.map((row) => (
-              <div key={row._id}>
-                <p>
-                  {row.name}
-                  <input type="checkbox" name={row._id} id={row._id} />
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div>Loading</div>
-        )}
-      </div>
+      
     </main>
   );
 }
-
