@@ -14,7 +14,7 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body className='bg-[#e6e4f1] h-screen'>
         <NavBar children={children} />
       </body>
     </html>
