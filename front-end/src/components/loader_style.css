@@ -1,0 +1,44 @@
+/* Loader.module.css */
+
+.loader {
+    @apply w-16 h-4;
+    position: relative;
+    animation: loader 1s infinite;
+  }
+  
+  .line {
+    @apply h-full w-2 bg-purple-900 absolute;
+    animation: line 1s infinite;
+  }
+  
+  .line2 {
+    @apply left-4;
+    animation-delay: 0.2s;
+  }
+  
+  .line3 {
+    @apply left-8;
+    animation-delay: 0.4s;
+  }
+  
+  @keyframes loader {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-16px);
+    }
+  }
+  
+  @keyframes line {
+    0% {
+      height: 16px;
+    }
+    50% {
+      height: 24px;
+    }
+    100% {
+      height: 16px;
+    }
+  }
+  
