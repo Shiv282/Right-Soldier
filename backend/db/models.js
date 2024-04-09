@@ -44,7 +44,7 @@ const guardSchema = new mongoose.Schema({
     lastPresentNight:{
         type: String
     },
-    dateOfJoinig: {
+    dateOfJoining: {
         type: String
     },
     phone: {
