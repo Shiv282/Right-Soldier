@@ -74,6 +74,7 @@ function xyz() {}
                           apartmentId: apartmentId,
                           title: title,
                           time: timeNow,
+                          guardId: guardId
                         },
                       });
                       console.log(response);
@@ -86,6 +87,7 @@ function xyz() {}
                         apartmentId: apartmentId,
                         title: "Patrol Completed",
                         time: timeNow,
+                        guardId: guardId
                       },
                     });
                     console.log(response2);
@@ -104,6 +106,7 @@ function xyz() {}
                         apartmentId: apartmentId,
                         title: title,
                         time: timeNow,
+                        guardId: guardId
                       },
                     });
                     console.log(response);
@@ -129,7 +132,7 @@ function xyz() {}
       });
   }
 
-async function handlePatrol(setCount, setTitle, setLat, setLon, setStatus, count, status) {
+async function handlePatrol(setCount, setTitle, setLat, setLon, setStatus, count, status, guardId) {
   console.log(status);
   const response = await axios({
     method: "POST",
@@ -155,6 +158,7 @@ async function handlePatrol(setCount, setTitle, setLat, setLon, setStatus, count
         apartmentId: apartmentId,
         title: "Patrol started",
         time: timeNow,
+        guardId: guardId
       },
     });
     console.log(response);

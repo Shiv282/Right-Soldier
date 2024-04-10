@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@mui/base";
 import axios from "axios";
 import { getDistance, handlePatrol } from "./utility";
@@ -10,9 +10,15 @@ export default function StartPatrol() {
   const [title, setTitle] = useState("");
   const [lat, setLat] = useState("");
   const [lon, setLon] = useState("");
+  const [guardId,setGuardId] = useState("");
+
+  useEffect(()=>{
+    var guardId = localStorage.getItem('guardId');
+    setGuardId(guardId);
+  },[])
 
   function handleClick() {
-    handlePatrol(setCount, setTitle, setLat, setLon, setStatus, count, status);
+    handlePatrol(setCount, setTitle, setLat, setLon, setStatus, count, status, guardId);
   }
 
   if (typeof window !== 'undefined' && "NDEFReader" in window) {

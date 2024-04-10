@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Loader from "@/components/loader";
 export default function ViewAttendancePage() {
   const [pageData, setPageData] = useState([]);
   const [presentDate, setPresentDate] = useState([]);
@@ -27,35 +28,45 @@ export default function ViewAttendancePage() {
 
   return (
     <>
-      <div className="mx-20">
-        <span>View Attendance</span>
-
-        {pageData[0] ? (
-          <div>
-            {pageData.map((row) => (
-              <div className="my-2" key={row._id}>
-                <p> Guard : {row.name}</p>
-                <p> Day Shift : 
-                  {presentDate == row.lastPresentDay ? (
-                    <span>Yes</span>
-                  ) : (
-                    <span>No</span>
-                  )}
-                </p>
-                <p> Night Sift
-                  {presentDate == row.lastPresentNight ? (
-                    <span>Yes</span>
-                  ) : (
-                    <span>No</span>
-                  )}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div>Loading</div>
-        )}
-      </div>
+    <h1 className="text-3xl text-center font-extrabold mb-3">Today's Attendance</h1>
+      <div className="mx-5 text-black bg-slate-200 p-3">
+  <table className="w-full">
+    <thead>
+      <tr className="bg-black">
+        <th className="text-left text-white">Guard</th>
+        <th className="text-left text-white">Day Shift</th>
+        <th className="text-left text-white">Night Shift</th>
+      </tr>
+    </thead>
+    <tbody>
+      {pageData[0] ? (
+        pageData.map((row) => (
+          <tr key={row._id}>
+            <td>{row.name}</td>
+            <td>
+              {presentDate == row.lastPresentDay ? (
+                <span>Yes</span>
+              ) : (
+                <span>No</span>
+              )}
+            </td>
+            <td>
+              {presentDate == row.lastPresentNight ? (
+                <span>Yes</span>
+              ) : (
+                <span>No</span>
+              )}
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="3"><Loader /></td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
     </>
   );
 }
