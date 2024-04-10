@@ -26,7 +26,7 @@ export default function NavBar({children}) {
     const pathname = usePathname();
     if(!(activeProfile == 'admin') && pathname.includes("admin")){
         setActiveProfile('admin');
-        setTabs([{text:'Home',href:'/admin'},{text:'Grant Advance',href:''},{text:'Add apartment',href:''},{text:'Add Guard',href:''},{text:'Add existing guard',href:''},{text:'Attendance',href:''},{text:'View Patrol',href:''},{text:'View Payroll',href:''}])
+        setTabs([{text:'Home',href:'/admin'},{text:'Grant Advance',href:'/admin/grantAdvance'},{text:'Add apartment',href:'/admin/addApartment'},{text:'Add Guard',href:'/admin/addGuard'},{text:'Add existing guard',href:'/admin/addExistingGuard'},{text:'Attendance',href:'/admin/attendance'},{text:'View Patrol',href:'/admin/patrol'},{text:'View Payroll',href:'/admin/payroll'}])
     }else if(!(activeProfile == 'supervisor') && pathname.includes("supervisor")){
         setActiveProfile('supervisor');
         setTabs([{text:'Home',href:'/supervisor'},{text:'Mark Attendance',href:'/supervisor/markAttendance'},{text:'View attendance',href:'/supervisor/viewAttendance'},{text:'Start patrol',href:'/supervisor/startPatrol'},{text:'View my patrols',href:'/supervisor/myPatrols'},{text:'Apartment patrols',href:'/supervisor/viewApartmentPatrol'}]);
