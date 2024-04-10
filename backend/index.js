@@ -155,11 +155,12 @@ app.post("/getApartment", async (req, res) => {
 
 app.post("/patrol/add", async (req, res) => {
   const PatrolHistory = models.PatrolHistory;
-  const { title, time, apartmentId } = req.body;
+  const { title, time, apartmentId, guardId } = req.body;
   var newPatrol = new PatrolHistory({
     title: title,
     time: time,
     apartmentId: apartmentId,
+    guardId: guardId
   });
   await newPatrol.save();
   res.sendStatus(200);
