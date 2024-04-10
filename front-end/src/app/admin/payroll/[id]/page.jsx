@@ -60,24 +60,42 @@ export default function Page({ params }) {
 
   return (
     <>
-      <div>
-        <h1>Payroll history</h1>
-        {data.map((guard) => (
-          <Button
-            color="success"
-            data-key={guard.guardId}
-            onClick={handleOpen}
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-            key={guard.guardId}
-          >
-            {guard.name}
-          </Button>
-        ))}
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl text-center font-extrabold mb-3">
+          Choose Guard
+        </h1>
+        <div className=" bg-slate-200 p-3 shadow-xl" key={"data"}>
+          <table className="w-full">
+            <thead className="bg-black text-white">
+              <tr>
+                <th className="text-left px-3">Guard name</th>
+              </tr>
+            </thead>
+            <tbody>
+              <>
+                {data.map((guard) => (
+                  <tr className="hover:bg-slate-300">
+                    <td>
+                      <a
+                        key={guard.guardId}
+                        data-key={guard.guardId}
+                        onClick={handleOpen}
+                      >
+                        <div className="w-full p-1 px-2">
+                        {guard.name}
+                        </div>
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </>
+            </tbody>
+          </table>
+        </div>
       </div>
       <Dialog open={open} onClose={handleClose} scroll="paper">
         <DialogTitle>
-          Patrol History
+          Payroll History
         </DialogTitle>
         <DialogContent dividers className={classes.dialogContent}>
           {dutyData.map((duty) => (
