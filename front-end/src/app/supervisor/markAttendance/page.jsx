@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Loader from "@/components/loader";
 var apartmentId = "66082468f79020f63b04bf0c";
+var apartmentName = "apartmentName";
 
 async function markAttendance() {
   var boxes = document.querySelectorAll('input[type="checkbox"]');
@@ -20,6 +21,7 @@ async function markAttendance() {
       id: result,
       apartmentId: apartmentId,
       timestamp: timestamp,
+      apartmentName: apartmentName
     },
   });
   console.log(response);
