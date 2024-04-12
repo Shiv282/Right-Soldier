@@ -49,7 +49,31 @@ const guardSchema = new mongoose.Schema({
     },
     phone: {
         type: Number
-    }
+    },
+    leave: {
+        type: {
+          leaveId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'LeaveRequest',
+          },
+          expiryTimestamp: {
+            type: Date,
+            index: { expires: 0 } 
+          }
+        },
+      },
+      advanceRequest : {
+        type: {
+            advanceRequestId: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'AdvanceRequest',
+            },
+            expiryTimestamp: {
+              type: Date,
+              index: { expires: 0 } 
+            }
+          },
+      }
 })
 
 /*
@@ -174,6 +198,9 @@ const attendanceHistorySchema = new mongoose.Schema({
     },
     shiftType:{
         type: String
+    },
+    apartmentName:{
+        type: String
     }
 })
 
@@ -202,3 +229,59 @@ const patrolHistorySchema = new mongoose.Schema({
 
 const PatrolHistory = mongoose.model('PatrolHistory',patrolHistorySchema)
 exports.PatrolHistory = PatrolHistory;
+
+const leaveRequestSchema = new mongoose.Schema({
+    apartmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Apartment'
+    },
+    guardId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Guard' 
+    },
+    reason: {
+        type: String
+    },
+    date:{
+        type: Date
+    },
+    expiryTimestamp: {
+        type: Date,
+        index: { expires: 0 } 
+    },
+    guardName:{
+        type: String
+    }
+})
+
+const LeaveRequest = mongoose.model('LeaveRequest',leaveRequestSchema)
+exports.LeaveRequest = LeaveRequest;
+
+
+
+const advanceRequestSchema = new mongoose.Schema({
+    apartmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Apartment'
+    },
+    guardId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Guard' 
+    },
+    reason: {
+        type: String
+    },
+    amount:{
+        type: Number
+    },
+    expiryTimestamp: {
+        type: Date,
+        index: { expires: 0 } 
+    },
+    guardName: {
+        type: String
+    }
+})
+
+const AdvanceRequest = mongoose.model('AdvanceRequest',advanceRequestSchema)
+exports.AdvanceRequest = AdvanceRequest;
