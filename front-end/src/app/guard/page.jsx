@@ -8,16 +8,21 @@ import {
   getDate,
   updateDutyData,
   daysInCurrentMonth,
+  requestLeave,
+  requestAdvance
 } from "./utility";
 import DayNightBarGraph from "../../components/DayNightBarGraph";
 import SalaryPieChart from "../../components/SalaryPieChart";
 import LineChart from "../../components/AdvanceHistoryLineChart";
 import StreakCalculator from "../../components/streakData";
 import Loader from "../../components/loader";
+import axios from "axios";
 
 export default function Home() {
   const [userData, setUserData] = useState([]);
   const [guardId, setGuardId] = useState("");
+  const [guardName, setGuardName] = useState("");
+  const [apartmentId, setApartmentId] = useState("");
   const [advanceDates, setAdvanceDates] = useState([]);
   const [advanceAmounts, setAdvanceAmounts] = useState([]);
   const [dutyDates, setDutyDates] = useState([]);
@@ -51,6 +56,8 @@ export default function Home() {
       setGuardId(id);
       var userData = await fetchData(id);
       setUserData(userData);
+      setApartmentId(userData[0].apartmentId);
+      setGuardName(userData[0].name);
       var dutyData = await updateDutyData(id);
       setDutyData(dutyData);
       console.log("dutyData", dutyData);
@@ -205,6 +212,71 @@ export default function Home() {
   );
 
   function ProfileCard() {
+    const [open,setOpen] = useState(false);
+    const [leaveStatus, setLeaveStatus] = useState('');
+    const [leaveId, setLeaveId] = useState('');
+
+    const [openAdvance, setOpenAdvance] = useState(false);
+    const [advanceStatus, setAdvanceStatus] = useState('');
+    const [advanceRequestId, setAdvanceRequestId] = useState('');
+
+    useEffect(()=>{
+      if(userData[0] && userData[0].leave && userData[0].leave.leaveId){
+        setLeaveId(userData[0].leave.leaveId);
+        setLeaveStatus('Cancel Request');
+      }else{
+        setLeaveStatus('Request Leave');
+      }
+      
+      if(userData[0] && userData[0].advanceRequest && userData[0].advanceRequest.advanceRequestId){
+        setAdvanceRequestId(userData[0].advanceRequest.advanceRequestId);
+        setAdvanceStatus('Cancel Request');
+      }else{
+        setAdvanceStatus('Request Advance');
+      }
+    },[])
+
+    function handleRequestLeave(){
+      setOpen(true);
+    };
+
+    function handleRequestAdvance(){
+      setOpenAdvance(true);
+    };
+
+    async function cancelRequestLeave(){
+      const response = await axios({
+        method: "DELETE",
+        url: "http://localhost:8080/deleteLeave",
+        params:{
+          leaveId: leaveId,
+          guardId: guardId
+        }
+      });
+      console.log(response);
+      setLeaveStatus('Request Leave');
+    }
+
+    async function cancelRequestAdvance(){
+      const response = await axios({
+        method: "DELETE",
+        url: "http://localhost:8080/deleteAdvance",
+        params:{
+          advanceRequestId: advanceRequestId,
+          guardId: guardId
+        }
+      });
+      console.log(response);
+      setAdvanceStatus('Request Advance');
+    }
+
+    function handleClose(){
+      setOpen(false);
+    }
+
+    function AdvanceDialogClose(){
+      setOpenAdvance(false);
+    }
     return (
       <div className="w-full">
         <div className="text-center">
@@ -240,9 +312,7 @@ export default function Home() {
               </td>
             </tr>
             <tr>
-              <td className="border-b text-left border-gray-100 p-1">
-                Advance
-              </td>
+              <td className="border-b text-left border-gray-100 p-1">Advance</td>
               <td className="border-b text-left border-gray-100 p-1">
                 {userData[0].advance}
               </td>
@@ -268,15 +338,87 @@ export default function Home() {
               </td>
             </tr>
             <tr>
-              <td className="border-b text-left border-gray-100 p-1">
-                Contact
-              </td>
+              <td className="border-b text-left border-gray-100 p-1">Contact</td>
               <td className="border-b text-left border-gray-100 p-1">
                 {userData[0].phone}
               </td>
             </tr>
           </tbody>
         </table>
+
+        <div className="flex justify-center mt-5">
+          <button onClick={(leaveStatus=="Request Leave")?handleRequestLeave:cancelRequestLeave} className="bg-blue-500 text-white px-3 py-2 rounded mr-2 hover:bg-blue-700">
+            {leaveStatus}
+          </button>
+          <button onClick={(advanceStatus=="Request Advance")?handleRequestAdvance:cancelRequestAdvance} className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-700">
+            {advanceStatus}
+          </button>
+        </div>
+
+
+        <Dialog open={openAdvance} onClose={AdvanceDialogClose} scroll="paper">
+          <DialogTitle>
+            Request Advance
+          </DialogTitle>
+          <DialogContent dividers className={classes.dialogContent}>
+          <div>
+            <label htmlFor="amount">Amount</label>
+            <input type="number" name="amount" id="amount" />
+            </div>
+            <div>
+            <label htmlFor="advanceReason">Reason</label>
+            <input type="text" name="advanceReason" id="advanceReason" />
+            </div>
+            <Button
+              color="success"
+              onClick={()=>{
+                var amount = document.querySelector('#amount').value;
+                var reason = document.querySelector('#advanceReason').value;
+                var advanceRequestId = requestAdvance(guardId,amount,reason,apartmentId,guardName);
+                setAdvanceRequestId(advanceRequestId);
+                setOpenAdvance(false);
+                setAdvanceStatus('Cancel Request');
+              }}
+              style={{ marginTop: 10 + "px" }}
+              variant="contained"
+            >
+              Submit
+            </Button>
+          </DialogContent>
+        </Dialog>
+
+
+        <Dialog open={open} onClose={handleClose} scroll="paper">
+          <DialogTitle>
+            Choose date
+          </DialogTitle>
+          <DialogContent dividers className={classes.dialogContent}>
+            <div>
+            <label htmlFor="date">Date</label>
+            <input type="date" name="date" id="date" />
+            </div>
+
+            <div>
+            <label htmlFor="reason">Enter reason</label>
+          <input type="text" name="reason" id="reason" />
+            </div>
+            <Button
+              color="success"
+              onClick={()=>{
+                var date = document.querySelector('#date').value;
+                var reason = document.querySelector('#reason').value;
+                var leaveId = requestLeave(guardId,date,reason,apartmentId,guardName);
+                setLeaveId(leaveId);
+                setOpen(false);
+                setLeaveStatus('Cancel Request');
+              }}
+              style={{ marginTop: 10 + "px" }}
+              variant="contained"
+            >
+              Submit
+            </Button>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }

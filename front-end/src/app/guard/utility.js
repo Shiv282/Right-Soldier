@@ -45,6 +45,51 @@ async function fetchData(id) {
 }
 exports.fetchData = fetchData;
 
+async function requestLeave(guardId,date,reason,apartmentId, guardName){
+  console.log(guardId);
+  console.log(date);
+  console.log(reason);
+  console.log(apartmentId);
+  const response = await axios({
+    method: "POST",
+    url: "http://localhost:8080/requestLeave",
+    data: {
+      guardId: guardId,
+      apartmentId: apartmentId,
+      date: date,
+      reason: reason,
+      guardName: guardName
+    }
+  });
+  console.log(response);
+  return response.data;
+}
+
+exports.requestLeave = requestLeave;
+
+async function requestAdvance(guardId,amount,reason,apartmentId,guardName){
+  console.log(guardId);
+  console.log(amount);
+  console.log(reason);
+  console.log(apartmentId);
+  const response = await axios({
+    method: "POST",
+    url: "http://localhost:8080/requestAdvance",
+    data: {
+      guardId: guardId,
+      apartmentId: apartmentId,
+      amount: amount,
+      reason: reason,
+      guardName,guardName
+    }
+  });
+  console.log(response);
+  return response.data;
+}
+
+exports.requestAdvance = requestAdvance;
+
+
 function getDate(dateString) {
   const date = new Date(dateString);
   const year = date.getFullYear();
