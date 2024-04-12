@@ -18,9 +18,8 @@ export default function Page({ params }) {
   const [open, setOpen] = useState(false);
   const classes = useStyles();
   
-  const handleOpen = async (event) => {
-    var id = event.target.getAttribute("data-key");
-    var name = event.target.innerText;
+  const handleOpen = async (id,name) => {
+    console.log(id);
     setDialogData([id, name]);
     setOpen(true);
   };
@@ -29,9 +28,8 @@ export default function Page({ params }) {
     setOpen(false);
   };
 
-  const addAdvance = async (event) => {
+  const addAdvance = async (guardId) => {
     var date = new Date();
-    var guardId = event.target.getAttribute("data-key");
     console.log(guardId);
     var amount = document.getElementById("amount").value;
     var reason = document.getElementById("reason").value;
@@ -87,7 +85,7 @@ export default function Page({ params }) {
                       <a
                         key={guard.guardId}
                         data-key={guard.guardId}
-                        onClick={handleOpen}
+                        onClick={()=>{handleOpen(guard.guardId,guard.name)}}
                       >
                         <div className="w-full p-1 px-2">
                         {guard.name}
@@ -112,8 +110,7 @@ export default function Page({ params }) {
           <input type="text" name="reason" id="reason" />
           <Button
             color="success"
-            data-key={dialogData[0]}
-            onClick={addAdvance}
+            onClick={()=>{addAdvance(dialogData[0])}}
             style={{ marginTop: 10 + "px" }}
             variant="contained"
           >

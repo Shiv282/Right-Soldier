@@ -44,7 +44,6 @@ const GuardForm = () => {
                 }
               });
               console.log(response);
-              closeGuard();
         }catch (error) {
             console.error('Error:', error);
             if(error.response.status == 400){

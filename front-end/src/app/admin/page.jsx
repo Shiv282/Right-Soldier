@@ -1,318 +1,213 @@
-"use client"
-import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+"use client";
 import { useEffect, useState } from "react";
+import Loader from "@/components/loader";
+import CancelIcon from '@mui/icons-material/Cancel';
 import axios from "axios";
 
-const useStyles = makeStyles((theme) => ({
-  dialogContent: {
-    maxHeight: 400, // Adjust the max height as needed
-    overflowY: "auto",
-  },
-}));
+function getDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
+}
 
-export default function AdminHomePage() {
+export default function () {
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [advanceRequests, setAdvanceRequests] = useState([]);
+  const [leaveRequests, setLeaveRequests] = useState([]);
 
-    const [dialogData, setDialogData] = useState([]);
-    const [apartments, setApartments] = useState([]);
-    const [guards, setGuards] = useState([]);
-    const [open, setOpen] = useState(false);
-    const [error, setError] = useState(null);
-    const [addExistingGuardDialog, setAddExistingGuardDialog] = useState(false)
-    const [guardDialog, setGuardDialog] = useState(false);
-    const classes = useStyles();
+  useEffect(() => {
+    async function fetchData() {
+      const response = await axios({
+        method: "GET",
+        url: "http://localhost:8080/markedAttendance",
+      });
+      console.log(response.data);
+      setAttendanceData(response.data);
 
-    const addExistingGuard = async () => {
-        var apartmentId = document.getElementById('apartmentName').value;
-        var guardId = document.getElementById('guardName').value;
-        var guardName = document.getElementById('guardName').options[document.getElementById('guardName').selectedIndex].text;
-        const response = await axios({
-            method: 'POST',
-            url: "http://localhost:3000/addExistingGuard",
-            data: {
-                guardId: guardId,
-                guardName: guardName, 
-                apartmentId: apartmentId
-            }
-          });
-        console.log(response);
+      const result = await axios({
+        method: "GET",
+        url: "http://localhost:8080/advanceRequests",
+      });
+      console.log(result.data);
+      setAdvanceRequests(result.data);
+
+      const leaves = await axios({
+        method: "GET",
+        url: "http://localhost:8080/leaveRequests",
+      });
+      console.log(leaves.data);
+      setLeaveRequests(leaves.data);
+
     }
+    fetchData();
+  }, []);
 
-    const addApartment = async () =>{
-        var location = document.getElementById('location').value;
-        var apartmentName = document.getElementById('apartmentName').value;
-        try{
-            const response = await axios({
-                method: 'POST',
-                url: "http://localhost:3000/addApartment",
-                data: {
-                    location: location,
-                    apartmentName: apartmentName,
-                    supervisorName: "supervisorName",
-                    supervisorId: "66083795e85721253d79b143"
-                }
-              });
-        }catch (error) {
-            console.error('Error:', error);
-            if(error.response.status == 400){
-                setDialogData("Apartment already exists");
-            }
-            setError(error.message || 'An error occurred');
-            document.getElementById('location').value = "";
-            document.getElementById('apartmentName').value = "";
-          }
-          
-        handleClose();
-      }
-
-      const addGuard = async () =>{
-        var guardName = document.getElementById('guardName').value;
-        var apartmentId = document.getElementById('apartmentName').value;
-        var salary = document.getElementById('salary').value;
-        var phone = document.getElementById('phone').value;
-        var apartmentName = document.getElementById('apartmentName').options[document.getElementById('apartmentName').selectedIndex].text;
-        const currentDate = new Date();
-        const date = currentDate.getDate();
-        const month = currentDate.getMonth() + 1;  // JavaScript months are 0-based, so we add 1
-        const year = currentDate.getFullYear();
-        var timestamp = date+" - "+month+" - "+year;
-        try{
-            const response = await axios({
-                method: 'POST',
-                url: "http://localhost:8080/addGuard",
-                data: {
-                    name: guardName,
-                    apartmentName: apartmentName,
-                    apartmentId: apartmentId,
-                    salary: salary,
-                    dateOfJoining: timestamp,
-                    phone: phone
-                }
-              });
-              console.log(response);
-              closeGuard();
-        }catch (error) {
-            console.error('Error:', error);
-            if(error.response.status == 400){
-                setDialogData("Guard already exists");
-            }
-            setError(error.message || 'An error occurred');
-            document.getElementById('guardName').value = "";
-          }
-      }
-
-      
-
-  const handleOpen = async (event) => {
-    var clicked = event.target.getAttribute('data-key');
-    setDialogData("Add apartment");
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const openGuard = async (event) => {
-    setDialogData("Add Guard");
-    const response = await axios({
-      method: 'GET',
-      url: "http://localhost:3000/apartments",
-    });
-    console.log(response.data.data);
-    setApartments(response.data.data);
-    setGuardDialog(true);
-  };
-
-  const closeGuard = () => {
-    setGuardDialog(false);
-  };
-
-  const addExistingGuardDialogOpen =async ()=>{
-
-    const response = await axios({
-        method: 'GET',
-        url: "http://localhost:3000/apartments",
-      });
-      console.log(response.data.data);
-      setApartments(response.data.data);
-      const guards = await axios({
-        method: 'GET',
-        url: "http://localhost:3000/guards",
-      });
-      console.log(guards.data.data);
-      setGuards(guards.data.data);
-    setAddExistingGuardDialog(true);
-  }
-
-  const addExistingGuardDialogClose = ()=>{
-    setAddExistingGuardDialog(false);
-  }
   return (
-    <>
-      <div>
-        <h1>Admin Home Page : {error && <p>Error: {error}</p>}</h1>
-        <div>
-          <Button
-            href="/admin/grantAdvance"
-            color="success"
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-          >
-            Grant advance
-          </Button>
-        </div>
-        <div>
-          <Button
-            color="success"
-            onClick={handleOpen}
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-            data-key="Add apartment"
-          >
-            Add apartment
-          </Button>
-        </div>
-        <div>
-          <Button
-            color="success"
-            onClick={openGuard}
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-            data-key="Add Guard"
-          >
-            Add guard
-          </Button>
-        </div>
-        <div>
-          <Button
-            color="success"
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-            data-key="Add Guard"
-            onClick={addExistingGuardDialogOpen}
-          >
-            Add existing guard
-          </Button>
-        </div>
-        <div>
-          <Button
-            href="/admin/attendance"
-            color="success"
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-          >
-            Attendance
-          </Button>
-        </div>
-        <div>
-          <Button
-            href="/admin/payroll"
-            color="success"
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-          >
-            View Payrol
-          </Button>
-        </div>
-        <div>
-          <Button
-            href="/admin/patrol"
-            color="success"
-            style={{ marginTop: 10 + "px" }}
-            variant="contained"
-          >
-            View patrol info
-          </Button>
-        </div>
-
-        <Dialog open={addExistingGuardDialog} onClose={addExistingGuardDialogClose} scroll="paper">
-          <DialogTitle>
-            Add existing guard
-          </DialogTitle>
-          <DialogContent dividers className={classes.dialogContent}>
-            <div>
-            <label className="mr-5" htmlFor="apartmentName">Choose apartment</label>
-            <select name="apartmentName" id="apartmentName">
-                {apartments.map((apartment)=>(<option key={apartment._id} value={apartment._id}>{apartment.apartmentName}</option>))}
-            </select>
-            </div>
-            <div>
-            <label className="mr-5" htmlFor="location">Choose Guard</label>
-            <select name="guardName" id="guardName">
-            {guards.map((guard)=>(<option key={guard._id} value={guard._id}>{guard.name}</option>))}
-                
-            </select>
-            </div>
-            <Button
-              color="success"
-              onClick={addExistingGuard}
-              style={{ marginTop: 10 + "px" }}
-              variant="contained"
-            >
-              Submit
-            </Button>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={open} onClose={handleClose} scroll="paper">
-          <DialogTitle>
-            {dialogData}
-          </DialogTitle>
-          <DialogContent dividers className={classes.dialogContent}>
-            <div>
-            <label htmlFor="apartmentName">Enter apartmentName</label>
-            <input type="text" name="apartmentName" id="apartmentName" />
-            </div>
-            <div>
-            <label htmlFor="location">Enter location</label>
-            <input type="text" name="location" id="location" />
-            </div>
-            <Button
-              color="success"
-              onClick={addApartment}
-              style={{ marginTop: 10 + "px" }}
-              variant="contained"
-            >
-              Submit
-            </Button>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={guardDialog} onClose={closeGuard} scroll="paper">
-          <DialogTitle>
-            {dialogData}
-          </DialogTitle>
-          <DialogContent dividers className={classes.dialogContent}>
-            <div>
-            <label htmlFor="guardName">Enter Name</label>
-            <input type="text" name="guardName" id="guardName" />
-            </div>
-            <div>
-            <label className="mr-5" htmlFor="apartmentName">Choose apartment</label>
-            <select name="apartmentName" id="apartmentName">
-                {apartments.map((apartment)=>(<option key={apartment._id} value={apartment._id}>{apartment.apartmentName}</option>))}
-            </select>
-            </div>
-            <div>
-            <label className="mr-5" htmlFor="salary">Enter salary</label>
-            <input type="number" name="salary" id="salary" />
-            </div>
-            <div>
-            <label className="mr-5" htmlFor="phone">Enter phone number</label>
-            <input type="number" name="phone" id="phone" />
-            </div>
-            <Button
-              color="success"
-              onClick={addGuard}
-              style={{ marginTop: 10 + "px" }}
-              variant="contained"
-            >
-              Submit
-            </Button>
-          </DialogContent>
-        </Dialog>
+    <div>
+      <div className="text-black bg-[#dfc6f7] text-center rounded-md shadow-xl p-2 flex justify-center items-center">
+        {attendanceData[0] ? (
+          <div className="w-full">
+            <h1 className="text-3xl text-center font-extrabold underline underline-offset-8 mb-5">
+              Today's Attendance
+            </h1>
+            <table className="w-full rounded-md bg-white table-auto border-collapse border-2 border-gray-300">
+              <thead>
+                <tr>
+                  <th className="bg-gray-200 text-black p-4">Apartment Name</th>
+                  <th className="bg-gray-200 text-black p-4">Shift Type</th>
+                  <th className="bg-gray-200 text-black p-4">Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendanceData.map((attendance) => (
+                  <tr key={attendance.apartmentName}>
+                    <td className="border-b border-gray-300 p-4">
+                      {attendance.apartmentName}
+                    </td>
+                    <td className="border-b border-gray-300 p-4">
+                      {attendance.shiftType}
+                    </td>
+                    <td className="border-b border-gray-300 p-4">
+                      {attendance.count}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div>
+            <Loader />
+          </div>
+        )}
       </div>
-    </>
+
+      <div className="grid grid-cols-2 col-span-3 my-5">
+        <AdvanceRequest advanceRequests={advanceRequests} setAdvanceRequests={setAdvanceRequests}/>
+        <LeaveRequest leaveRequests={leaveRequests} setLeaveRequests={setLeaveRequests}/>
+      </div>
+    </div>
   );
+}
+
+function AdvanceRequest({ advanceRequests, setAdvanceRequests }){
+  return (
+    <div className=" text-black bg-[#dfc6f7] text-center rounded-md mr-3 shadow-xl p-2">
+          <div className="py-20 w-full">
+            <h1 className="text-xl mb-10 text-center font-extrabold underline underline-offset-8">
+              Advance Requests
+            </h1>
+            <table className="w-full rounded-md bg-white table-auto border-collapse border-2 border-gray-300">
+              <thead>
+                <tr>
+                  <th className="bg-gray-200 text-black p-4">Guard Name</th>
+                  <th className="bg-gray-200 text-black p-4">Reason</th>
+                  <th className="bg-gray-200 text-black p-4">Amount</th>
+                  <th className="bg-gray-200 text-black p-4">Close</th>
+                </tr>
+              </thead>
+              <tbody>
+                {advanceRequests[0] ? (
+                  advanceRequests.map((advance,index) => (
+                    <tr key={advance.guardId}>
+                      <td className="border-b border-gray-300 p-4">
+                        {advance.guardName}
+                      </td>
+                      <td className="border-b border-gray-300 p-4">
+                        {advance.reason}
+                      </td>
+                      <td className="border-b border-gray-300 p-4">
+                        {advance.amount}
+                      </td>
+                      <td className="border-b border-gray-300 p-4">
+                        <CancelIcon onClick={async ()=>{
+                          const response = await axios({
+                            method: "DELETE",
+                            url: "http://localhost:8080/deleteAdvance",
+                            params:{
+                              advanceRequestId: advance._id,
+                              guardId: advance.guardId
+                            }
+                          });
+                          console.log(response);
+                          var cloneadvanceRequests = advanceRequests;
+                          cloneadvanceRequests.splice(index,1);
+                          setAdvanceRequests(cloneadvanceRequests);
+                        }} className="hover:scale-125 transition duration-300 ease-in-out" />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <div>
+                    <Loader />
+                  </div>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+  )
+}
+
+
+function LeaveRequest({ leaveRequests, setLeaveRequests }){
+  return (
+    <div className=" text-black bg-[#dfc6f7] text-center rounded-md mr-3 shadow-xl p-2">
+          <div className="py-20 w-full">
+            <h1 className="text-xl mb-10 text-center font-extrabold underline underline-offset-8">
+              Leave Requests
+            </h1>
+            <table className="w-full rounded-md bg-white table-auto border-collapse border-2 border-gray-300">
+              <thead>
+                <tr>
+                  <th className="bg-gray-200 text-black p-4">Guard Name</th>
+                  <th className="bg-gray-200 text-black p-4">Reason</th>
+                  <th className="bg-gray-200 text-black p-4">Date</th>
+                  <th className="bg-gray-200 text-black p-4">Close</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaveRequests[0] ? (
+                  leaveRequests.map((leave,index) => (
+                    <tr key={leave.guardId}>
+                      <td className="border-b border-gray-300 p-4">
+                        {leave.guardName}
+                      </td>
+                      <td className="border-b border-gray-300 p-4">
+                        {leave.reason}
+                      </td>
+                      <td className="border-b border-gray-300 p-4">
+                        {getDate(leave.date)}
+                      </td>
+                      <td className="border-b border-gray-300 p-4">
+                        <CancelIcon onClick={async ()=>{
+                          const response = await axios({
+                            method: "DELETE",
+                            url: "http://localhost:8080/deleteLeave",
+                            params:{
+                              advanceRequestId: leave._id,
+                              guardId: leave.guardId
+                            }
+                          });
+                          console.log(response);
+                          var cloneleaveRequests = leaveRequests;
+                          cloneleaveRequests.splice(index,1);
+                          setLeaveRequests(cloneleaveRequests);
+                        }} className="hover:scale-125 transition duration-300 ease-in-out" />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <div>
+                    <Loader />
+                  </div>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+  )
 }
