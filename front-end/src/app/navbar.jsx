@@ -40,7 +40,7 @@ export default function NavBar({children}) {
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar className='bg-gradient-to-r from-[#884ff5] to-[#c4b2ff]' sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography className='font-mono font-black' variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Maestro Workforce
+            Mastro Workforce
           </Typography>
           <LogoutIcon className='hover:text-red-600 hover:transform hover:scale-125 transition duration-300 ease-in-out'/>
         </Toolbar>

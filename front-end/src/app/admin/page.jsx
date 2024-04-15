@@ -202,7 +202,9 @@ function LeaveRequest({ leaveRequests, setLeaveRequests }){
                   ))
                 ) : (
                   <div>
-                    <Loader />
+                    <table>
+                      <Loader/>
+                    </table>
                   </div>
                 )}
               </tbody>

@@ -101,6 +101,12 @@ const supervisorSchema = new mongoose.Schema({
 const Supervisor = mongoose.model('Supervisor',supervisorSchema);
 exports.Supervisor = Supervisor
 
+const contactSchema = new mongoose.Schema({
+    name: String,
+    contactNumber: String,
+    designation: String,
+  });
+
 //Apartment Schema
 const apartmentSchema = new mongoose.Schema({
     apartmentName: {
@@ -115,8 +121,12 @@ const apartmentSchema = new mongoose.Schema({
             type: String
         }
     }],
-    guardCount: {
+    manPower: {
         type: Number
+    },
+    contacts: [contactSchema],
+    SOP: {
+        type: String
     },
     location: {
         type: String

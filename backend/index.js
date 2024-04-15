@@ -2,6 +2,21 @@ var express = require("express");
 var app = express();
 const cors = require("cors");
 
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+
 //Database connection
 const mongoose = require("mongoose");
 const DB_url = "mongodb://localhost:27017/";
@@ -21,6 +36,7 @@ let models = require("./db/models.js");
 //middlewares
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen("8080", function () {
   console.log("Listening to 8080");
@@ -194,7 +210,7 @@ app.get("/markedAttendance", async (req, res) => {
   const startOfDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
-    currentDate.getDate()
+    currentDate.getDate()-1
   );
   const endOfDay = new Date(
     currentDate.getFullYear(),
@@ -383,6 +399,34 @@ app.get("/apartments", async function (req, res) {
   const apartments = await Apartment.find();
   res.json({ data: apartments });
 });
+
+//------------
+app.post('/addApartment',upload.single('SOP'),async(req,res)=>{
+  console.log("Add Apartment")
+  const Apartment = models.Apartment;
+  const {apartmentName, supervisorId, supervisorName, location, manPower, contacts, SOP} = req.body;
+  console.log(req.body)
+  const apartmentPresentcheck = await Apartment.find({apartmentName:apartmentName});
+  if(apartmentPresentcheck.length==0){
+      const newApartment = new Apartment({
+          apartmentName : apartmentName,
+          supervisors : [{supervisorId:supervisorId,supervisorName:supervisorName}],
+          guardCount : 0,
+          location : location,
+          guards : [],
+          patrolPath : [],
+          manPower: manPower,
+          contacts: JSON.parse(contacts),
+          SOP: req.file.path
+      })
+      await newApartment.save();
+      res.sendStatus(200);
+  }else{
+      res.sendStatus(400);
+  }
+})
+
+
 
 //----
 app.post("/addAdvance", async function (req, res) {
